@@ -1,0 +1,2 @@
+environment: ${APP_ENVIRONMENT}
+log_level: ${LOG_LEVEL}

@@ -1,0 +1,29 @@
+name: Manual Run
+
+on:
+  workflow_dispatch:
+
+jobs:
+  template-for-dev:
+    name: Template Config for Dev Environment
+    uses: "karatheodory/gh-action-template-file/.github/workflows/template-file.yaml@main"
+    with:
+      TEMPLATE_FILE_PATH: ./app-config.yaml
+      TARGET_FILE_PATH: ./app-config.dev.yaml
+      TEMPLATE_VARS: |
+        {
+          "APP_ENVIRONMENT": "dev",
+          "LOG_LEVEL": "DEBUG"
+        }
+
+  template-for-prod:
+    name: Template Config for Prod Environment
+    uses: "karatheodory/gh-action-template-file/.github/workflows/template-file.yaml@main"
+    with:
+      TEMPLATE_FILE_PATH: ./app-config.yaml
+      TARGET_FILE_PATH: ./app-config.prod.yaml
+      TEMPLATE_VARS: |
+        {
+          "APP_ENVIRONMENT": "prod",
+          "LOG_LEVEL": "INFO"
+        }

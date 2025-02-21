@@ -1,0 +1,48 @@
+name: Template File
+
+on:
+  workflow_call:
+    inputs:
+      TEMPLATE_FILE_PATH:
+        required: true
+        description: Path to a file to be templated
+        type: string
+      TARGET_FILE_PATH:
+        required: true
+        description: Path to the result of templating
+        type: string
+      TEMPLATE_VARS:
+        required: true
+        description: JSON string containing values of the variables to be templated
+        type: string
+
+jobs:
+  template-file:
+    name: Template File
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Template File
+        env:
+          # Expose as an env var to handle double quotes correctly in the JSON
+          TEMPLATE_VARS: ${{ inputs.TEMPLATE_VARS }}
+        run: |
+          set -ex
+
+          # Export vars from the input JSON
+          PARSED_VARS=$(echo "${TEMPLATE_VARS}" | jq 'to_entries[] | "\(.key)=\(.value)"' | xargs -I '{}' echo "export {}")
+
+          # Load the vars into the environment
+          eval "${PARSED_VARS}"
+
+          # Create envsubst template
+          ENVSUBST_VAR_LIST=$(echo "${TEMPLATE_VARS}" | jq 'to_entries[] | "${\(.key)}"' | xargs)
+
+          # Template the config file
+          envsubst "${ENVSUBST_VAR_LIST}" < ${{ inputs.TEMPLATE_FILE_PATH }} > ${{ inputs.TARGET_FILE_PATH }}
+
+      - name: Print Result
+        run: |
+          cat "${{ inputs.TARGET_FILE_PATH }}"
